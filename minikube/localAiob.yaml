@@ -1,0 +1,123 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: allinone-deployment
+  labels:
+    app: allinone
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: allinone
+    spec:
+      containers:
+        - name: famgateway
+          image: LM-SHC-16507656:5000/famgateway-test
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8116
+
+        - name: fampu
+          image: LM-SHC-16507656:5000/fampu
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 50055
+
+        - name: famdumper
+          image: LM-SHC-16507656:5000/famdumper-test
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8086
+
+        - name: fasgateway
+          image: LM-SHC-16507656:5000/fasgateway-test
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8090
+
+        - name: faspu
+          image: LM-SHC-16507656:5000/faspu
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 50058
+
+        - name: fasdumper
+          image: LM-SHC-16507656:5000/fasdumper-test
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8094
+
+        - name: etcd
+          image: LM-SHC-16507656:5000/etcd
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 2379
+            - containerPort: 2380
+
+        - name: postgre
+          image: LM-SHC-16507656:5000/postgre
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5432
+
+        - name: fasrtquerysvc
+          image: LM-SHC-16507656:5000/fasrtquerysvc
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8120
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: allinoneapp
+  labels:
+    name: allinone
+spec:
+  selector:
+    app: allinone
+  type: NodePort
+  ports:
+    - name: gateway
+      port: 80
+      protocol: TCP
+      nodePort: 32001
+      targetPort: 8116
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: allinoneapp1
+  labels:
+    name: allinone
+spec:
+  selector:
+    app: allinone
+  type: NodePort
+  ports:
+    - name: querysvc
+      port: 80
+      protocol: TCP
+      nodePort: 32006
+      targetPort: 8120
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: allinoneapp2
+  labels:
+    name: allinone
+spec:
+  selector:
+    app: allinone
+  type: NodePort
+  ports:
+    - name: postgresql
+      port: 80
+      protocol: TCP
+      nodePort: 32009
+      targetPort: 5432
